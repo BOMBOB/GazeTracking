@@ -4,6 +4,7 @@ import cv2
 import dlib
 from .eye import Eye
 from .calibration import Calibration
+from .caffe_model import CaffeModel
 
 
 class GazeTracking(object):
@@ -13,15 +14,16 @@ class GazeTracking(object):
     and pupils and allows to know if the eyes are open or closed
     """
 
-    def __init__(self):
+    def __init__(self, choice = 0):
         self.frame = None
         self.eye_left = None
         self.eye_right = None
         self.calibration = Calibration()
-
+        self.face = None
+        self.choice = choice
         # _face_detector is used to detect faces
         self._face_detector = dlib.get_frontal_face_detector()
-
+        self._face_caffe = CaffeModel()
         # _predictor is used to get facial landmarks of a given face
         cwd = os.path.abspath(os.path.dirname(__file__))
         model_path = os.path.abspath(os.path.join(cwd, "trained_models/shape_predictor_68_face_landmarks.dat"))
@@ -41,11 +43,28 @@ class GazeTracking(object):
 
     def _analyze(self):
         """Detects the face and initialize Eye objects"""
+        face = None
         frame = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
-        faces = self._face_detector(frame)
+        if self.choice == 0:
+            faces = self._face_detector(frame)
+            if faces != None and len(faces) > 0:
+                print('>>faces: ', faces)
+                face = faces[0]
+        elif self.choice == 1:
+            face = self._face_caffe._analyze(self.frame)
+
+        #face = self._face_detector(frame)[0]
+
+        if face == None:
+            return
+        self.face = face
+        # face = faces.pop()
+        # print('>>faces: ', type(face))
+        print('>>face: ', face)
+        cv2.rectangle(frame, (face.left(), face.top()), (face.right(), face.bottom()), (0, 0, 255), 2)
 
         try:
-            landmarks = self._predictor(frame, faces[0])
+            landmarks = self._predictor(frame, face)
             self.eye_left = Eye(frame, landmarks, 0, self.calibration)
             self.eye_right = Eye(frame, landmarks, 1, self.calibration)
 
@@ -129,5 +148,11 @@ class GazeTracking(object):
             cv2.line(frame, (x_left, y_left - 5), (x_left, y_left + 5), color)
             cv2.line(frame, (x_right - 5, y_right), (x_right + 5, y_right), color)
             cv2.line(frame, (x_right, y_right - 5), (x_right, y_right + 5), color)
+            if self.face != None:
+                face = self.face
+                print('>>face: ', type(face))
+                cv2.rectangle(frame, (face.left(), face.top()), (face.right(), face.bottom()), (0, 0, 255), 2)
+
+
 
         return frame
