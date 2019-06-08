@@ -14,7 +14,7 @@ class GazeTracking(object):
     and pupils and allows to know if the eyes are open or closed
     """
 
-    def __init__(self, choice = 0):
+    def __init__(self, choice = 1):
         self.frame = None
         self.eye_left = None
         self.eye_right = None
@@ -26,6 +26,8 @@ class GazeTracking(object):
         self._face_caffe = CaffeModel()
         # _predictor is used to get facial landmarks of a given face
         cwd = os.path.abspath(os.path.dirname(__file__))
+        # print('>>path: ', cwd + '/facedetector/haarcascade_frontalface_defaulthaarcascade_frontalface_default.xml')
+        self.face_cascade = cv2.CascadeClassifier('./facedetector/haarcascade_frontalface_default.xml')
         model_path = os.path.abspath(os.path.join(cwd, "trained_models/shape_predictor_68_face_landmarks.dat"))
         self._predictor = dlib.shape_predictor(model_path)
 
@@ -44,6 +46,7 @@ class GazeTracking(object):
     def _analyze(self):
         """Detects the face and initialize Eye objects"""
         face = None
+
         frame = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
         if self.choice == 0:
             faces = self._face_detector(frame)
@@ -52,6 +55,13 @@ class GazeTracking(object):
                 face = faces[0]
         elif self.choice == 1:
             face = self._face_caffe._analyze(self.frame)
+        elif self.choice ==2:
+            print('>>.frame: ', frame)
+
+            cascades = self.face_cascade.detectMultiScale(frame, 1.3, 5)
+            for (x,y,w,h) in cascades:
+                face = dlib.rectangle(x,y, x+w, y+h)
+
 
         #face = self._face_detector(frame)[0]
 
@@ -118,12 +128,12 @@ class GazeTracking(object):
     def is_right(self):
         """Returns true if the user is looking to the right"""
         if self.pupils_located:
-            return self.horizontal_ratio() <= 0.35
+            return self.horizontal_ratio() <= 0.25
 
     def is_left(self):
         """Returns true if the user is looking to the left"""
         if self.pupils_located:
-            return self.horizontal_ratio() >= 0.65
+            return self.horizontal_ratio() >= 0.75
 
     def is_center(self):
         """Returns true if the user is looking to the center"""
