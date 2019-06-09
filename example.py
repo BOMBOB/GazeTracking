@@ -11,8 +11,9 @@ webcam = cv2.VideoCapture(0)
 
 while True:
     # We get a new frame from the webcam
-    _, frame = webcam.read()
-
+    ret, frame = webcam.read()
+    if ret == False or frame is None:
+        continue
     # We send this frame to GazeTracking to analyze it
     gaze.refresh(frame)
 
