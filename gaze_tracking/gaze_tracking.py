@@ -5,7 +5,8 @@ import dlib
 from .eye import Eye
 from .calibration import Calibration
 from .caffe_model import CaffeModel
-
+ # /Users/Siriphong/Desktop/image-processing/eye-gazing/GazeTracking/gaze_tracking/gaze_tracking.py
+face_cascade = cv2.CascadeClassifier()
 
 class GazeTracking(object):
     """
@@ -27,8 +28,9 @@ class GazeTracking(object):
         # _predictor is used to get facial landmarks of a given face
         cwd = os.path.abspath(os.path.dirname(__file__))
         # print('>>path: ', cwd + '/facedetector/haarcascade_frontalface_defaulthaarcascade_frontalface_default.xml')
-        self.face_cascade = cv2.CascadeClassifier('./facedetector/haarcascade_frontalface_default.xml')
         model_path = os.path.abspath(os.path.join(cwd, "trained_models/shape_predictor_68_face_landmarks.dat"))
+        face_cascade.load(os.path.abspath(os.path.join(cwd, "facedetector/haarcascade_frontalface_default.xml"))
+)
         self._predictor = dlib.shape_predictor(model_path)
 
     @property
@@ -55,22 +57,18 @@ class GazeTracking(object):
                 face = faces[0]
         elif self.choice == 1:
             face = self._face_caffe._analyze(self.frame)
-        elif self.choice ==2:
-            print('>>.frame: ', frame)
+        elif self.choice == 2:
 
-            cascades = self.face_cascade.detectMultiScale(frame, 1.3, 5)
+            cascades = face_cascade.detectMultiScale(frame, 1.3, 5)
             for (x,y,w,h) in cascades:
                 face = dlib.rectangle(x,y, x+w, y+h)
-
-
-        #face = self._face_detector(frame)[0]
 
         if face == None:
             return
         self.face = face
         # face = faces.pop()
         # print('>>faces: ', type(face))
-        print('>>face: ', face)
+        # print('>>face: ', face)
         cv2.rectangle(frame, (face.left(), face.top()), (face.right(), face.bottom()), (0, 0, 255), 2)
 
         try:

@@ -8,7 +8,7 @@ class CaffeModel(object):
     def __init__(self):
         cwd = os.path.abspath(os.path.dirname(__file__))
         trainmodel = os.path.abspath(os.path.join(cwd, "facedetector/deploy.prototxt"))
-        facedetect = os.path.abspath(os.path.join(cwd, "facedetector/res10_300x300_ssd_iter_140000.caffemodel"))
+        facedetect = os.path.abspath(os.path.join(cwd, "facedetector/res10_300x300_ssd_iter_140000_fp16.caffemodel"))
         self.net = cv2.dnn.readNetFromCaffe(trainmodel,
                                facedetect)
 
