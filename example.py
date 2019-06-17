@@ -8,10 +8,8 @@ from gaze_tracking import GazeTracking
 
 gaze = GazeTracking()
 webcam = cv2.VideoCapture(0)
-
-
-
-
+numleft = 0
+numright = 0
 while True:
     # We get a new frame from the webcam
     ret, frame = webcam.read()
@@ -27,8 +25,10 @@ while True:
         text = "Blinking"
     elif gaze.is_right():
         text = "Looking right"
+        numright += 1
     elif gaze.is_left():
         text = "Looking left"
+        numleft += 1
     elif gaze.is_center():
         text = "Looking center"
 
@@ -40,6 +40,7 @@ while True:
     cv2.putText(frame, "Right pupil: " + str(right_pupil), (90, 165), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
 
 
+    cv2.putText(frame, "numLeft: {} || numRight: {}".format(numleft, numright), (90, 205), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
     cv2.imshow("Demo", frame)
 
     if cv2.waitKey(1) == 27:

@@ -35,7 +35,7 @@ class Pupil(object):
         new_frame = cv2.erode(new_frame, kernel, iterations=3)
 
         new_frame = cv2.threshold(new_frame, threshold, 255, cv2.THRESH_BINARY)[1]
-
+        print('>>threshold: ', threshold)
         return new_frame
 
     def detect_iris(self, eye_frame):

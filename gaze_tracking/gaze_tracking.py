@@ -15,8 +15,9 @@ class GazeTracking(object):
     and pupils and allows to know if the eyes are open or closed
     """
 
-    def __init__(self, choice = 2):
-        self.count = 0;
+    def __init__(self, choice = 1):
+        self.numBlink = 0
+        self.center_ratio = 0
         self.frame = None
         self.eye_left = None
         self.eye_right = None
@@ -116,7 +117,9 @@ class GazeTracking(object):
         if self.pupils_located:
             pupil_left = self.eye_left.pupil.x / (self.eye_left.center[0] * 2 - 10)
             pupil_right = self.eye_right.pupil.x / (self.eye_right.center[0] * 2 - 10)
-            return (pupil_left + pupil_right) / 2
+            ratio = (pupil_left + pupil_right) / 2
+            print('>>horizontal_ratio: ', ratio)
+            return ratio
 
     def vertical_ratio(self):
         """Returns a number between 0.0 and 1.0 that indicates the
@@ -131,11 +134,16 @@ class GazeTracking(object):
     def is_right(self):
         """Returns true if the user is looking to the right"""
         if self.pupils_located:
-            return self.horizontal_ratio() <= 0.35
+            return self.horizontal_ratio() <= 0.25
+
 
     def is_left(self):
         """Returns true if the user is looking to the left"""
         if self.pupils_located:
+            # if self.center_ratio != 0:
+            #     ratio = 0.38 + ((1 - self.center_ratio) / 2)
+            #     print('>>ratio-left: ', ratio)
+            #     return self.horizontal_ratio() >= ratio
             return self.horizontal_ratio() >= 0.75
 
     def is_center(self):
@@ -146,8 +154,17 @@ class GazeTracking(object):
     def is_blinking(self):
         """Returns true if the user closes his eyes"""
         if self.pupils_located:
+            print(">>Blink: ", self.numBlink)
             blinking_ratio = (self.eye_left.blinking + self.eye_right.blinking) / 2
-            return blinking_ratio > 3.8
+            isBlink = blinking_ratio > 3.8
+            if isBlink:
+                self.numBlink += 1
+                if self.numBlink > 3:
+                    self.center_ratio = self.horizontal_ratio()
+                    print('>>self.center_ratio: ', self.center_ratio)
+                    self.numBlink = 0
+
+            return isBlink
 
     def annotated_frame(self):
         """Returns the main frame with pupils highlighted"""

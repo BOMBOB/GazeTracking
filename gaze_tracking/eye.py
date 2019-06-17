@@ -58,9 +58,10 @@ class Eye(object):
         max_x = np.max(region[:, 0]) + margin
         min_y = np.min(region[:, 1]) - margin
         max_y = np.max(region[:, 1]) + margin
-
+        x = max_x - min_x
+        y = max_y - min_y
         self.frame = eye[min_y:max_y, min_x:max_x]
-        cv2.imshow('Eye: ', self.frame)
+        cv2.imshow('eye: ', self.frame)
         self.origin = (min_x, min_y)
 
         height, width = self.frame.shape[:2]
