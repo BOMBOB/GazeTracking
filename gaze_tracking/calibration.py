@@ -13,6 +13,9 @@ class Calibration(object):
         self.nb_frames = 20
         self.thresholds_left = []
         self.thresholds_right = []
+    def reset(self):
+        self.thresholds_left = []
+        self.thresholds_right = []
 
     def is_complete(self):
         """Returns true if the calibration is completed"""

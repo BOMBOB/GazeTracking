@@ -17,7 +17,7 @@ class Eye(object):
         self.frame = None
         self.origin = None
         self.center = None
-        self.pupil = None
+        self.pupil = {}
 
         self._analyze(original_frame, landmarks, side, calibration)
 
@@ -43,6 +43,7 @@ class Eye(object):
         """
         region = np.array([(landmarks.part(point).x, landmarks.part(point).y) for point in points])
         region = region.astype(np.int32)
+        # region is array of point of the eye.
 
         # Applying a mask to get only the eye
         height, width = frame.shape[:2]
@@ -59,6 +60,7 @@ class Eye(object):
         max_y = np.max(region[:, 1]) + margin
 
         self.frame = eye[min_y:max_y, min_x:max_x]
+        cv2.imshow('Eye: ', self.frame)
         self.origin = (min_x, min_y)
 
         height, width = self.frame.shape[:2]
@@ -109,9 +111,11 @@ class Eye(object):
 
         self.blinking = self._blinking_ratio(landmarks, points)
         self._isolate(original_frame, landmarks, points)
+        # After Isolate will got the rectangle of eye
 
         if not calibration.is_complete():
+            print('>>>is not Complete')
             calibration.evaluate(self.frame, side)
 
         threshold = calibration.threshold(side)
-        self.pupil = Pupil(self.frame, threshold)
+        self.pupil = Pupil(self.frame, threshold, side)
