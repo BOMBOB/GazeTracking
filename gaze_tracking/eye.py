@@ -82,7 +82,9 @@ class Eye(object):
         right = (landmarks.part(points[3]).x, landmarks.part(points[3]).y)
         top = self._middle_point(landmarks.part(points[1]), landmarks.part(points[2]))
         bottom = self._middle_point(landmarks.part(points[5]), landmarks.part(points[4]))
-
+        # math.hypot = sum square
+        # (left.x-right.x)
+        print('left[0]:', left[0], 'right[0]: ', right[0])
         eye_width = math.hypot((left[0] - right[0]), (left[1] - right[1]))
         eye_height = math.hypot((top[0] - bottom[0]), (top[1] - bottom[1]))
 
@@ -90,7 +92,7 @@ class Eye(object):
             ratio = eye_width / eye_height
         except ZeroDivisionError:
             ratio = None
-
+        print('>>ratio: ', ratio)
         return ratio
 
     def _analyze(self, original_frame, landmarks, side, calibration):
@@ -115,7 +117,7 @@ class Eye(object):
         # After Isolate will got the rectangle of eye
 
         if not calibration.is_complete():
-            print('>>>is not Complete')
+            # print('>>>is not Complete')
             calibration.evaluate(self.frame, side)
 
         threshold = calibration.threshold(side)

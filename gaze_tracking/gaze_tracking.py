@@ -5,6 +5,7 @@ import dlib
 from .eye import Eye
 from .calibration import Calibration
 from .caffe_model import CaffeModel
+import numpy as np
  # /Users/Siriphong/Desktop/image-processing/eye-gazing/GazeTracking/gaze_tracking/gaze_tracking.py
 face_cascade = cv2.CascadeClassifier()
 
@@ -15,7 +16,9 @@ class GazeTracking(object):
     and pupils and allows to know if the eyes are open or closed
     """
 
-    def __init__(self, choice = 1):
+    def __init__(self, choice = 2):
+        self.shapes = []
+        self.count = 0
         self.numBlink = 0
         self.center_ratio = 0
         self.frame = None
@@ -55,7 +58,7 @@ class GazeTracking(object):
         if self.choice == 0:
             faces = self._face_detector(frame)
             if faces != None and len(faces) > 0:
-                print('>>faces: ', faces)
+                # print('>>faces: ', faces)
                 face = faces[0]
         elif self.choice == 1:
             face = self._face_caffe._analyze(self.frame)
@@ -65,7 +68,7 @@ class GazeTracking(object):
                 face = dlib.rectangle(x,y, x+w, y+h)
 
         if face == None:
-            self.count+=1
+            self.count += 1
             if self.count > 10:
                 self.calibration.reset()
                 self.count = 0
@@ -79,8 +82,11 @@ class GazeTracking(object):
 
         try:
             landmarks = self._predictor(frame, face)
+            print('>>landmarks: ', landmarks)
+
             self.eye_left = Eye(frame, landmarks, 0, self.calibration)
             self.eye_right = Eye(frame, landmarks, 1, self.calibration)
+            self.shapes = shape_to_np(landmarks)
 
         except IndexError:
             self.eye_left = None
@@ -118,7 +124,7 @@ class GazeTracking(object):
             pupil_left = self.eye_left.pupil.x / (self.eye_left.center[0] * 2 - 10)
             pupil_right = self.eye_right.pupil.x / (self.eye_right.center[0] * 2 - 10)
             ratio = (pupil_left + pupil_right) / 2
-            print('>>horizontal_ratio: ', ratio)
+            # print('>>horizontal_ratio: ', ratio)
             return ratio
 
     def vertical_ratio(self):
@@ -134,7 +140,7 @@ class GazeTracking(object):
     def is_right(self):
         """Returns true if the user is looking to the right"""
         if self.pupils_located:
-            return self.horizontal_ratio() <= 0.25
+            return self.horizontal_ratio() <= 0.35
 
 
     def is_left(self):
@@ -154,15 +160,16 @@ class GazeTracking(object):
     def is_blinking(self):
         """Returns true if the user closes his eyes"""
         if self.pupils_located:
-            print(">>Blink: ", self.numBlink)
+            # print(">>Blink: ", self.numBlink)
             blinking_ratio = (self.eye_left.blinking + self.eye_right.blinking) / 2
-            isBlink = blinking_ratio > 3.8
-            if isBlink:
-                self.numBlink += 1
-                if self.numBlink > 3:
-                    self.center_ratio = self.horizontal_ratio()
-                    print('>>self.center_ratio: ', self.center_ratio)
-                    self.numBlink = 0
+            print('>>Blink: ', blinking_ratio)
+            isBlink = blinking_ratio > 4.5
+            # if isBlink:
+            #     self.numBlink += 1
+            #     if self.numBlink > 3:
+            #         self.center_ratio = self.horizontal_ratio()
+            #         print('>>self.center_ratio: ', self.center_ratio)
+            #         self.numBlink = 0
 
             return isBlink
 
@@ -180,9 +187,22 @@ class GazeTracking(object):
             cv2.line(frame, (x_right, y_right - 5), (x_right, y_right + 5), color)
             if self.face != None:
                 face = self.face
-                print('>>face: ', type(face))
+
                 cv2.rectangle(frame, (face.left(), face.top()), (face.right(), face.bottom()), (0, 0, 255), 2)
 
 
 
         return frame
+
+
+def shape_to_np(shape, dtype="int"):
+    # initialize the list of (x, y)-coordinates
+    coords = np.zeros((68, 2), dtype=dtype)
+
+    # loop over the 68 facial landmarks and convert them
+    # to a 2-tuple of (x, y)-coordinates
+    for i in range(0, 68):
+        coords[i] = (shape.part(i).x, shape.part(i).y)
+
+    # return the list of (x, y)-coordinates
+    return coords

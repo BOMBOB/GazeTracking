@@ -41,6 +41,8 @@ while True:
 
 
     cv2.putText(frame, "numLeft: {} || numRight: {}".format(numleft, numright), (90, 205), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
+    for (x, y) in gaze.shapes:
+        cv2.circle(frame, (x, y), 1, (0, 0, 255), -1)
     cv2.imshow("Demo", frame)
 
     if cv2.waitKey(1) == 27:
