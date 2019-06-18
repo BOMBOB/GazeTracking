@@ -1,4 +1,4 @@
-numpy == 1.16.1
-opencv_python == 3.4.5.20
-dlib == 19.16.0
-imutils
+dlib==19.16.0
+imutils==0.5.2
+numpy==1.16.1
+opencv-python==3.4.5.20

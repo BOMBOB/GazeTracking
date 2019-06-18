@@ -1,6 +1,5 @@
 import time
-from datetime import datetime
-import cv2
+import cv2.cv2 as cv2
 from models import model2
 
 EYE_POSITION_LEFT = 1
@@ -8,12 +7,29 @@ EYE_POSITION_CENTER = 2
 EYE_POSITION_RIGHT = 3
 SELECTED_CYCLE_THRESHOLD = 20
 
+# menus = {
+#     'L1M1': './menu/L1M1.png',
+#     'L2M1': './menu/L2M1.png',
+#     'L2M2': './menu/L2M2.png',
+#     'L2M3': './menu/L2M3.png',
+#     'L2MF': './menu/L2MF.png'
+# }
+
 menus = {
-    'L1M1': './menu/L1M1.png',
-    'L2M1': './menu/L2M1.png',
-    'L2M2': './menu/L2M2.png',
-    'L2M3': './menu/L2M3.png',
-    'L2MF': './menu/L2MF.png'
+    'L0': {
+        'src': './menu/L1M1.png',
+        'children': {
+            1: 'L1M1',
+            # 2: 'L2M2',
+            3: 'L1M3'
+        }
+    },
+    'L1M1': {
+        'src': './menu/L2M1.png'
+    },
+    'L1M3': {
+        'src': './menu/L2M3.png'
+    }
 }
 
 
@@ -37,55 +53,19 @@ def focus_right(img):
 
 
 def get_next_menu(current_menu, eye_position):
-    # TODO
-    next_menu = None
-
-    if current_menu == 'L1M1':
-        if eye_position == EYE_POSITION_LEFT:
-            next_menu = 'L2M1'
-        elif eye_position == EYE_POSITION_CENTER:
-            next_menu = 'L2M2'
-        elif eye_position == EYE_POSITION_RIGHT:
-            next_menu = 'L2M3'
-
-    elif current_menu == 'L2M1':
-        if eye_position == EYE_POSITION_LEFT:
-            next_menu = 'L1M1'
-        elif eye_position == EYE_POSITION_CENTER:
-            next_menu = 'L2MF'
-        elif eye_position == EYE_POSITION_RIGHT:
-            next_menu = 'L1M1'
-
-    elif current_menu == 'L2M2':
-        if eye_position == EYE_POSITION_LEFT:
-            next_menu = 'L1M1'
-        elif eye_position == EYE_POSITION_CENTER:
-            next_menu = 'L2MF'
-        elif eye_position == EYE_POSITION_RIGHT:
-            next_menu = 'L1M1'
-
-    elif current_menu == 'L2M3':
-        if eye_position == EYE_POSITION_LEFT:
-            next_menu = 'L1M1'
-        elif eye_position == EYE_POSITION_CENTER:
-            next_menu = 'L2MF'
-        elif eye_position == EYE_POSITION_RIGHT:
-            next_menu = 'L1M1'
-    elif current_menu == 'L2MF':
-        if eye_position == EYE_POSITION_LEFT:
-            next_menu = 'L1M1'
-        elif eye_position == EYE_POSITION_CENTER:
-            next_menu = 'L1M1'
-        elif eye_position == EYE_POSITION_RIGHT:
-            next_menu = 'L1M1'
-
+    current_menu_item = menus[current_menu]
+    next_menu = current_menu_item['children'][eye_position]
     return next_menu
+
+
+def get_menu_image(menu):
+    return menus[menu]['src']
 
 
 def main():
 
     # initial system config
-    current_menu = 'L1M1'
+    current_menu = 'L0'
     # i = 0
     # countDict = {'cLeft': 0, 'cRight': 0, 'cCenter': 0, 'cBlinking': 0}
     count_dict = {
@@ -98,8 +78,8 @@ def main():
 
     try:
         while True:
-            print(str(menus[current_menu]))
-            img = cv2.imread(menus[current_menu], cv2.IMREAD_COLOR)
+            # print(str(menus[current_menu]))
+            img = cv2.imread(get_menu_image(current_menu), cv2.IMREAD_COLOR)
 
             _, frame = webcam.read()
             eye_position = run_model(frame)
@@ -109,10 +89,10 @@ def main():
                 focus_left(img)
                 print('LEFT')
 
-            elif eye_position == EYE_POSITION_CENTER:
-                count_dict[EYE_POSITION_CENTER] += 1
-                focus_center(img)
-                print('CENTER')
+            # elif eye_position == EYE_POSITION_CENTER:
+            #     count_dict[EYE_POSITION_CENTER] += 1
+            #     focus_center(img)
+            #     print('CENTER')
 
             elif eye_position == EYE_POSITION_RIGHT:
                 count_dict[EYE_POSITION_RIGHT] += 1
