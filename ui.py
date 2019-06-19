@@ -6,6 +6,7 @@ from models import model2 as analyze
 EYE_POSITION_LEFT = 1
 EYE_POSITION_CENTER = 2
 EYE_POSITION_RIGHT = 3
+EYE_POSITION_NOT_FOUND = -1
 SELECTED_CYCLE_THRESHOLD = 20
 RESET_CYCLE_THRESHOLD = 10
 SELECT_COLOR = {} # pre-generated when application start
@@ -14,6 +15,7 @@ WINDOW_TITLE = "Eye On Me"
 BACKGROUND_COLOR = 217
 WINDOW_WIDTH = 1440  # 1600
 WINDOW_HEIGHT = 900
+ALWAYS_ON = True
 
 ICON_WIDTH = 345
 ICON_HEIGHT = 295
@@ -41,11 +43,13 @@ menus = {
     'L0': {
         1: {
             'src': './menu/L0L.png',
-            'text': 'TOILET'
+            'text': 'TOILET',
+            'action': 'toilet'
         },
         3: {
             'src': './menu/L0R.png',
-            'text': 'EMERGENCY'
+            'text': 'EMERGENCY',
+            'action': 'emergency'
         },
         'children': {
             1: 'L1A',
@@ -56,29 +60,35 @@ menus = {
     'L1A': {
         1: {
             'src': './menu/L1AL.png',
-            'text': 'NO'
+            'text': 'NO',
+            'action': 'no'
         },
         2: {
             'src': './menu/L1AC.png',
-            'text': 'BACK'
+            'text': 'BACK',
+            'action': 'back'
         },
         3: {
             'src': './menu/L1AR.png',
-            'text': 'YES'
+            'text': 'YES',
+            'action': 'yes'
         }
     },
     'L1B': {
         1: {
             'src': './menu/L1BL.png',
-            'text': 'NO'
+            'text': 'NO',
+            'action': 'no'
         },
         2: {
             'src': './menu/L1BC.png',
-            'text': 'BACK'
+            'text': 'BACK',
+            'action': 'back'
         },
         3: {
             'src': './menu/L1BR.png',
-            'text': 'HURRY'
+            'text': 'HURRY',
+            'action': 'hurry'
         }
     }
 }
@@ -185,7 +195,7 @@ def put_text_right(img, text):
 
 
 def focus_right(img, current_percent):
-    c = SELECT_COLOR[int(current_percent * 100)]
+    c = SELECT_COLOR[min(int(current_percent * 100), 100)]
     cv2.rectangle(img, (ICON_RIGHT_X1, ICON_RIGHT_Y1), (ICON_RIGHT_X2, ICON_RIGHT_Y2), c, cv2.FILLED)
     return img
 
@@ -241,6 +251,12 @@ def has_button_on_position(current_menu, eye_position):
     return current_menu in menus and eye_position in menus[current_menu]
 
 
+def get_action(menu, eye_position):
+    if eye_position not in menus[menu] or 'action' not in menus[menu][eye_position]:
+        return None
+    return menus[menu][eye_position]['action']
+
+
 def main():
     # initial system config
     # pre-generate colors
@@ -255,11 +271,14 @@ def main():
     count_dict = {
         EYE_POSITION_LEFT: 0,
         EYE_POSITION_CENTER: 0,
-        EYE_POSITION_RIGHT: 0
+        EYE_POSITION_RIGHT: 0,
+        EYE_POSITION_NOT_FOUND: 0,
     }
-    img = np.zeros((WINDOW_HEIGHT, WINDOW_WIDTH, 4), dtype=np.uint8)
-    img[:, :, :3] = BACKGROUND_COLOR
-    cv2.imshow(WINDOW_TITLE, img)
+    active = ALWAYS_ON
+
+    # img = np.zeros((WINDOW_HEIGHT, WINDOW_WIDTH, 4), dtype=np.uint8)
+    # img[:, :, :3] = BACKGROUND_COLOR
+    # cv2.imshow(WINDOW_TITLE, img)
 
     webcam = cv2.VideoCapture(0)
 
@@ -272,25 +291,36 @@ def main():
             _, frame = webcam.read()
             eye_position = run_model(frame)
 
-            if not has_button_on_position(current_menu, eye_position):
+            if not active:
+                if eye_position == EYE_POSITION_CENTER:
+                    count_dict[eye_position] += 1
+                    print('DETECTED', count_dict[eye_position])
+                else:
+                    print('IGNORE', eye_position)
+
+                if count_dict[eye_position] > SELECTED_CYCLE_THRESHOLD:
+                    active = True
+                    continue
+
+            if not has_button_on_position(current_menu, eye_position) or not active:
                 continue
+
+            if eye_position in count_dict:
+                count_dict[eye_position] += 1
 
             if count_dict[eye_position] > RESET_CYCLE_THRESHOLD:
                 for k in [k for k in count_dict.keys() if k != eye_position]:
                     count_dict[k] = 0
 
             if eye_position == EYE_POSITION_LEFT:
-                count_dict[EYE_POSITION_LEFT] += 1
                 focus_left(img, count_dict[EYE_POSITION_LEFT] / SELECTED_CYCLE_THRESHOLD)
                 print('LEFT')
 
             elif eye_position == EYE_POSITION_CENTER:
-                count_dict[EYE_POSITION_CENTER] += 1
                 focus_center(img, count_dict[EYE_POSITION_CENTER] / SELECTED_CYCLE_THRESHOLD)
                 print('CENTER')
 
             elif eye_position == EYE_POSITION_RIGHT:
-                count_dict[EYE_POSITION_RIGHT] += 1
                 focus_right(img, count_dict[EYE_POSITION_RIGHT] / SELECTED_CYCLE_THRESHOLD)
                 print('RIGHT')
 
@@ -299,6 +329,9 @@ def main():
             # countDict['cBlinking'] += 1
             # print('Blink')
 
+            # TODO: Sleep monitor signal
+            elif eye_position == EYE_POSITION_NOT_FOUND:
+                print('NOT_FOUND')
             else:
                 print(eye_position)
 
@@ -315,14 +348,38 @@ def main():
             put_text_right(img, get_right_text(current_menu))
 
             if count_dict[eye_position] >= SELECTED_CYCLE_THRESHOLD:
-                next_menu = get_next_menu(current_menu, eye_position)
-                if next_menu is not None:
-                    current_menu = next_menu
+                if eye_position == EYE_POSITION_NOT_FOUND:
+                    # sleep, turn off monitor
+                    if not ALWAYS_ON:
+                        active = False
                 else:
-                    break
-                count_dict = count_dict.fromkeys(count_dict, 0)
+                    next_menu = get_next_menu(current_menu, eye_position)
+                    if next_menu is not None:
+                        # do action
+                        action = get_action(current_menu, eye_position)
+                        if action == 'emergency':
+                            print('LINE message sent: EMERGENCY')
+                        elif action == 'toilet':
+                            print('LINE message sent: TOILET')
 
-            cv2.imshow(WINDOW_TITLE, img)
+                        current_menu = next_menu
+                    else:
+                        # do action
+                        action = get_action(current_menu, eye_position)
+                        if action == 'back':
+                            current_menu = 'L0'
+                        elif action == 'hurry':
+                            print('LINE message sent: HURRY')
+                        elif action == 'no':
+                            print('LINE message sent: NO')
+                        elif action == 'yes':
+                            print('LINE message sent: YES')
+                        else:
+                            break
+                # reset dictionary values
+                count_dict = count_dict.fromkeys(count_dict, 0)
+            if active:
+                cv2.imshow(WINDOW_TITLE, img)
             print(count_dict)
             time.sleep(0.3)
 
