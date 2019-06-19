@@ -11,6 +11,8 @@ SELECT_COLOR = {} # pre-generated when application start
 
 WINDOW_TITLE = "Eye On Me"
 BACKGROUND_COLOR = 217
+WINDOW_WIDTH = 1440  # 1600
+WINDOW_HEIGHT = 900
 
 ICON_WIDTH = 345
 ICON_HEIGHT = 295
@@ -20,16 +22,15 @@ ICON_LEFT_Y1 = 161
 ICON_LEFT_X2 = ICON_LEFT_X1 + ICON_WIDTH
 ICON_LEFT_Y2 = ICON_LEFT_Y1 + ICON_HEIGHT
 
-ICON_CENTER_X1 = 626
-ICON_CENTER_Y1 = 161
-ICON_CENTER_X2 = ICON_CENTER_X1 + ICON_WIDTH
-ICON_CENTER_Y2 = ICON_CENTER_Y1 + ICON_HEIGHT
-
-
-ICON_RIGHT_X1 = 1215
+ICON_RIGHT_X1 = WINDOW_WIDTH - 40 - ICON_WIDTH  # 1215
 ICON_RIGHT_Y1 = 161
 ICON_RIGHT_X2 = ICON_RIGHT_X1 + ICON_WIDTH
 ICON_RIGHT_Y2 = ICON_RIGHT_Y1 + ICON_HEIGHT
+
+ICON_CENTER_X1 = (WINDOW_WIDTH / 2) - (ICON_WIDTH / 2)  # 626
+ICON_CENTER_Y1 = 161
+ICON_CENTER_X2 = ICON_CENTER_X1 + ICON_WIDTH
+ICON_CENTER_Y2 = ICON_CENTER_Y1 + ICON_HEIGHT
 
 FONT = cv2.FONT_HERSHEY_COMPLEX
 FONT_SCALE = 2
@@ -262,7 +263,7 @@ def main():
         EYE_POSITION_CENTER: 0,
         EYE_POSITION_RIGHT: 0
     }
-    img = np.zeros((900, 1600, 4), dtype=np.uint8)
+    img = np.zeros((WINDOW_HEIGHT, WINDOW_WIDTH, 4), dtype=np.uint8)
     img[:, :, :3] = BACKGROUND_COLOR
     cv2.imshow(WINDOW_TITLE, img)
 
@@ -271,7 +272,7 @@ def main():
     try:
         while True:
 
-            img = np.zeros((900, 1600, 4), dtype=np.uint8)
+            img = np.zeros((WINDOW_HEIGHT, WINDOW_WIDTH, 4), dtype=np.uint8)
             img[:, :, :3] = BACKGROUND_COLOR
 
             _, frame = webcam.read()
