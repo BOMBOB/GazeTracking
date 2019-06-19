@@ -82,6 +82,7 @@ class GazeTracking(object):
 
         try:
             landmarks = self._predictor(frame, face)
+
             print('>>landmarks: ', landmarks)
 
             self.eye_left = Eye(frame, landmarks, 0, self.calibration)

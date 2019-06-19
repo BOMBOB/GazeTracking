@@ -29,13 +29,17 @@ class Pupil(object):
         Returns:
             A frame with a single element representing the iris
         """
+        kernelSharpen = np.array([[0, -1, 0],[-1, 5, -1], [0, -1, 0]])
         kernel = np.ones((3, 3), np.uint8)
         new_frame = cv2.bilateralFilter(eye_frame, 10, 15, 15)
+        #new_frame = cv2.filter2D(new_frame, -1, kernelSharpen)
 
         new_frame = cv2.erode(new_frame, kernel, iterations=3)
+        #new_frame = cv2.dirode
 
         new_frame = cv2.threshold(new_frame, threshold, 255, cv2.THRESH_BINARY)[1]
-        print('>>threshold: ', threshold)
+        # print('>>threshold: ', threshold)
+
         return new_frame
 
     def detect_iris(self, eye_frame):
