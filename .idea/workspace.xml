@@ -2,10 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="e26f4b08-b513-459b-8d9e-ef789cb4eaa4" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/gaze_tracking/calibration.py" beforeDir="false" afterPath="$PROJECT_DIR$/gaze_tracking/calibration.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gaze_tracking/eye.py" beforeDir="false" afterPath="$PROJECT_DIR$/gaze_tracking/eye.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/gaze_tracking/gaze_tracking.py" beforeDir="false" afterPath="$PROJECT_DIR$/gaze_tracking/gaze_tracking.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gaze_tracking/pupil.py" beforeDir="false" afterPath="$PROJECT_DIR$/gaze_tracking/pupil.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -27,10 +24,10 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/gaze_tracking/eye.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="405">
+            <state relative-caret-position="791">
               <caret line="64" column="9" selection-start-line="64" selection-start-column="9" selection-end-line="64" selection-end-column="9" />
             </state>
           </provider>
@@ -41,11 +38,11 @@
           <provider selected="true" editor-type-id="text-editor" />
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/gaze_tracking/gaze_tracking.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="353">
-              <caret line="108" column="42" lean-forward="true" selection-start-line="108" selection-start-column="42" selection-end-line="108" selection-end-column="42" />
+            <state relative-caret-position="113">
+              <caret line="18" column="33" selection-start-line="18" selection-start-column="33" selection-end-line="18" selection-end-column="33" />
             </state>
           </provider>
         </entry>
@@ -108,10 +105,10 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/example.py" />
-        <option value="$PROJECT_DIR$/gaze_tracking/gaze_tracking.py" />
         <option value="$PROJECT_DIR$/gaze_tracking/calibration.py" />
         <option value="$PROJECT_DIR$/gaze_tracking/pupil.py" />
         <option value="$PROJECT_DIR$/gaze_tracking/eye.py" />
+        <option value="$PROJECT_DIR$/gaze_tracking/gaze_tracking.py" />
       </list>
     </option>
   </component>
@@ -215,12 +212,12 @@
     <frame x="0" y="0" width="1920" height="1080" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.38711396" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.38711396" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.32970297" />
+      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.32970297" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -264,13 +261,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/gaze_tracking/gaze_tracking.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="353">
-          <caret line="108" column="42" lean-forward="true" selection-start-line="108" selection-start-column="42" selection-end-line="108" selection-end-column="42" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/gaze_tracking/pupil.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="210">
@@ -283,8 +273,15 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/gaze_tracking/eye.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="405">
+        <state relative-caret-position="791">
           <caret line="64" column="9" selection-start-line="64" selection-start-column="9" selection-end-line="64" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/gaze_tracking/gaze_tracking.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="113">
+          <caret line="18" column="33" selection-start-line="18" selection-start-column="33" selection-end-line="18" selection-end-column="33" />
         </state>
       </provider>
     </entry>
