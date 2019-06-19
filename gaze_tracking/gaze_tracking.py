@@ -5,6 +5,7 @@ import dlib
 from .eye import Eye
 from .calibration import Calibration
 from .caffe_model import CaffeModel
+import numpy as np
  # /Users/Siriphong/Desktop/image-processing/eye-gazing/GazeTracking/gaze_tracking/gaze_tracking.py
 face_cascade = cv2.CascadeClassifier()
 
@@ -15,7 +16,11 @@ class GazeTracking(object):
     and pupils and allows to know if the eyes are open or closed
     """
 
-    def __init__(self, choice = 1):
+    def __init__(self, choice = 2):
+        self.shapes = []
+        self.count = 0
+        self.numBlink = 0
+        self.center_ratio = 0
         self.frame = None
         self.eye_left = None
         self.eye_right = None
@@ -53,28 +58,36 @@ class GazeTracking(object):
         if self.choice == 0:
             faces = self._face_detector(frame)
             if faces != None and len(faces) > 0:
-                print('>>faces: ', faces)
+                # print('>>faces: ', faces)
                 face = faces[0]
         elif self.choice == 1:
             face = self._face_caffe._analyze(self.frame)
         elif self.choice == 2:
-
             cascades = face_cascade.detectMultiScale(frame, 1.3, 5)
             for (x,y,w,h) in cascades:
                 face = dlib.rectangle(x,y, x+w, y+h)
 
         if face == None:
-            return
+            self.count += 1
+            if self.count > 10:
+                self.calibration.reset()
+                self.count = 0
+                return
+            else:
+                self.count = 0
+                return
+
         self.face = face
-        # face = faces.pop()
-        # print('>>faces: ', type(face))
-        # print('>>face: ', face)
         cv2.rectangle(frame, (face.left(), face.top()), (face.right(), face.bottom()), (0, 0, 255), 2)
 
         try:
             landmarks = self._predictor(frame, face)
+
+            print('>>landmarks: ', landmarks)
+
             self.eye_left = Eye(frame, landmarks, 0, self.calibration)
             self.eye_right = Eye(frame, landmarks, 1, self.calibration)
+            self.shapes = shape_to_np(landmarks)
 
         except IndexError:
             self.eye_left = None
@@ -111,7 +124,9 @@ class GazeTracking(object):
         if self.pupils_located:
             pupil_left = self.eye_left.pupil.x / (self.eye_left.center[0] * 2 - 10)
             pupil_right = self.eye_right.pupil.x / (self.eye_right.center[0] * 2 - 10)
-            return (pupil_left + pupil_right) / 2
+            ratio = (pupil_left + pupil_right) / 2
+            # print('>>horizontal_ratio: ', ratio)
+            return ratio
 
     def vertical_ratio(self):
         """Returns a number between 0.0 and 1.0 that indicates the
@@ -126,11 +141,16 @@ class GazeTracking(object):
     def is_right(self):
         """Returns true if the user is looking to the right"""
         if self.pupils_located:
-            return self.horizontal_ratio() <= 0.25
+            return self.horizontal_ratio() <= 0.35
+
 
     def is_left(self):
         """Returns true if the user is looking to the left"""
         if self.pupils_located:
+            # if self.center_ratio != 0:
+            #     ratio = 0.38 + ((1 - self.center_ratio) / 2)
+            #     print('>>ratio-left: ', ratio)
+            #     return self.horizontal_ratio() >= ratio
             return self.horizontal_ratio() >= 0.75
 
     def is_center(self):
@@ -141,8 +161,18 @@ class GazeTracking(object):
     def is_blinking(self):
         """Returns true if the user closes his eyes"""
         if self.pupils_located:
+            # print(">>Blink: ", self.numBlink)
             blinking_ratio = (self.eye_left.blinking + self.eye_right.blinking) / 2
-            return blinking_ratio > 3.8
+            print('>>Blink: ', blinking_ratio)
+            isBlink = blinking_ratio > 4.5
+            # if isBlink:
+            #     self.numBlink += 1
+            #     if self.numBlink > 3:
+            #         self.center_ratio = self.horizontal_ratio()
+            #         print('>>self.center_ratio: ', self.center_ratio)
+            #         self.numBlink = 0
+
+            return isBlink
 
     def annotated_frame(self):
         """Returns the main frame with pupils highlighted"""
@@ -158,9 +188,22 @@ class GazeTracking(object):
             cv2.line(frame, (x_right, y_right - 5), (x_right, y_right + 5), color)
             if self.face != None:
                 face = self.face
-                print('>>face: ', type(face))
+
                 cv2.rectangle(frame, (face.left(), face.top()), (face.right(), face.bottom()), (0, 0, 255), 2)
 
 
 
         return frame
+
+
+def shape_to_np(shape, dtype="int"):
+    # initialize the list of (x, y)-coordinates
+    coords = np.zeros((68, 2), dtype=dtype)
+
+    # loop over the 68 facial landmarks and convert them
+    # to a 2-tuple of (x, y)-coordinates
+    for i in range(0, 68):
+        coords[i] = (shape.part(i).x, shape.part(i).y)
+
+    # return the list of (x, y)-coordinates
+    return coords

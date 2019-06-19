@@ -1,7 +1,7 @@
 from __future__ import division
 import cv2
 from .pupil import Pupil
-
+import numpy as np
 
 class Calibration(object):
     """
@@ -11,6 +11,9 @@ class Calibration(object):
 
     def __init__(self):
         self.nb_frames = 20
+        self.thresholds_left = []
+        self.thresholds_right = []
+    def reset(self):
         self.thresholds_left = []
         self.thresholds_right = []
 
@@ -25,9 +28,12 @@ class Calibration(object):
             side: Indicates whether it's the left eye (0) or the right eye (1)
         """
         if side == 0:
-            return int(sum(self.thresholds_left) / len(self.thresholds_left))
+            # return int(sum(self.thresholds_left) / len(self.thresholds_left))
+
+            return int(np.median(self.thresholds_left))
         elif side == 1:
-            return int(sum(self.thresholds_right) / len(self.thresholds_right))
+            #return int(sum(self.thresholds_right) / len(self.thresholds_right))
+            return int(np.median(self.thresholds_right))
 
     @staticmethod
     def iris_size(frame):
