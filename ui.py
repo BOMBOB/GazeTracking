@@ -1,12 +1,13 @@
 import time
 import numpy as np
 import cv2.cv2 as cv2
-from models import model2
+from models import model2 as analyze
 
 EYE_POSITION_LEFT = 1
 EYE_POSITION_CENTER = 2
 EYE_POSITION_RIGHT = 3
 SELECTED_CYCLE_THRESHOLD = 20
+RESET_CYCLE_THRESHOLD = 10
 SELECT_COLOR = {} # pre-generated when application start
 
 WINDOW_TITLE = "Eye On Me"
@@ -84,7 +85,7 @@ menus = {
 
 
 def run_model(frame):
-    return model2(frame)
+    return analyze(frame)
 
 
 def add_icon_left(img, icon):
@@ -115,13 +116,6 @@ def put_text_left(img, text):
 
 
 def focus_left(img, current_percent):
-    # l_base = 29
-    # l_max = 90
-    # l_current = ((l_max - l_base) * current_percent) + l_base
-    #
-    # hsv = np.uint8([[[(120 / 360) * 180, (58 / 100) * 255, (l_current/ 100) * 255]]])
-    # bgr = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
-    # c = (int(bgr[0][0][0]), int(bgr[0][0][1]), int(bgr[0][0][2]))
     c = SELECT_COLOR[int(current_percent * 100)]
     cv2.rectangle(img, (ICON_LEFT_X1, ICON_LEFT_Y1), (ICON_LEFT_X2, ICON_LEFT_Y2), c, cv2.FILLED)
     return img
@@ -280,6 +274,10 @@ def main():
 
             if not has_button_on_position(current_menu, eye_position):
                 continue
+
+            if count_dict[eye_position] > RESET_CYCLE_THRESHOLD:
+                for k in [k for k in count_dict.keys() if k != eye_position]:
+                    count_dict[k] = 0
 
             if eye_position == EYE_POSITION_LEFT:
                 count_dict[EYE_POSITION_LEFT] += 1
