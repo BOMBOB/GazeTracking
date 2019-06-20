@@ -1,7 +1,7 @@
 import time
 import numpy as np
 import cv2.cv2 as cv2
-from models import model2 as analyze
+from models import model1 as analyze
 
 EYE_POSITION_LEFT = 1
 EYE_POSITION_CENTER = 2
@@ -302,38 +302,37 @@ def main():
                     active = True
                     continue
 
-            if not has_button_on_position(current_menu, eye_position) or not active:
-                continue
+            if has_button_on_position(current_menu, eye_position) and active:
 
-            if eye_position in count_dict:
-                count_dict[eye_position] += 1
+                if eye_position in count_dict:
+                    count_dict[eye_position] += 1
 
-            if count_dict[eye_position] > RESET_CYCLE_THRESHOLD:
-                for k in [k for k in count_dict.keys() if k != eye_position]:
-                    count_dict[k] = 0
+                if count_dict[eye_position] > RESET_CYCLE_THRESHOLD:
+                    for k in [k for k in count_dict.keys() if k != eye_position]:
+                        count_dict[k] = 0
 
-            if eye_position == EYE_POSITION_LEFT:
-                focus_left(img, count_dict[EYE_POSITION_LEFT] / SELECTED_CYCLE_THRESHOLD)
-                print('LEFT')
+                if eye_position == EYE_POSITION_LEFT:
+                    focus_left(img, count_dict[EYE_POSITION_LEFT] / SELECTED_CYCLE_THRESHOLD)
+                    print('LEFT')
 
-            elif eye_position == EYE_POSITION_CENTER:
-                focus_center(img, count_dict[EYE_POSITION_CENTER] / SELECTED_CYCLE_THRESHOLD)
-                print('CENTER')
+                elif eye_position == EYE_POSITION_CENTER:
+                    focus_center(img, count_dict[EYE_POSITION_CENTER] / SELECTED_CYCLE_THRESHOLD)
+                    print('CENTER')
 
-            elif eye_position == EYE_POSITION_RIGHT:
-                focus_right(img, count_dict[EYE_POSITION_RIGHT] / SELECTED_CYCLE_THRESHOLD)
-                print('RIGHT')
+                elif eye_position == EYE_POSITION_RIGHT:
+                    focus_right(img, count_dict[EYE_POSITION_RIGHT] / SELECTED_CYCLE_THRESHOLD)
+                    print('RIGHT')
 
-            # elif eye_position == 0:
-            #     Blink
-            # countDict['cBlinking'] += 1
-            # print('Blink')
+                # elif eye_position == 0:
+                #     Blink
+                # countDict['cBlinking'] += 1
+                # print('Blink')
 
-            # TODO: Sleep monitor signal
-            elif eye_position == EYE_POSITION_NOT_FOUND:
-                print('NOT_FOUND')
-            else:
-                print(eye_position)
+                # TODO: Sleep monitor signal
+                elif eye_position == EYE_POSITION_NOT_FOUND:
+                    print('NOT_FOUND')
+                else:
+                    print(eye_position)
 
             left_icon = cv2.imread(get_left_icon(current_menu), cv2.IMREAD_UNCHANGED)
             add_icon_left(img, left_icon)
@@ -347,7 +346,8 @@ def main():
             add_icon_right(img, right_icon)
             put_text_right(img, get_right_text(current_menu))
 
-            if count_dict[eye_position] >= SELECTED_CYCLE_THRESHOLD:
+            if has_button_on_position(current_menu, eye_position) and active and\
+                count_dict[eye_position] >= SELECTED_CYCLE_THRESHOLD:
                 if eye_position == EYE_POSITION_NOT_FOUND:
                     # sleep, turn off monitor
                     if not ALWAYS_ON:
