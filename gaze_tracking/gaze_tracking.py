@@ -155,11 +155,11 @@ class GazeTracking(object):
             if new_threshold < threshold:
                 threshold = new_threshold
         if self.pupils_located:
-            is_righted = (horizontal <= (threshold+0.03))
+            is_righted = (horizontal <= (threshold+0.1))
             if is_righted:
                 self.right_list.append(horizontal)
-                if len(self.right_list) > 50:
-                    self.right_list = self.right_list[26:50]
+                if len(self.right_list) > 20:
+                    self.right_list = self.right_list[10:20]
                 return is_righted
 
     def is_left(self):
@@ -171,11 +171,11 @@ class GazeTracking(object):
             if new_threshold < threshold:
                 threshold = new_threshold
         if self.pupils_located:
-            is_lefted = (horizontal >= (threshold-0.03))
+            is_lefted = (horizontal >= (threshold-0.1))
             if is_lefted:
                 self.left_list.append(horizontal)
-                if len(self.left_list) > 50:
-                    self.left_list = self.left_list[26:50]
+                if len(self.left_list) > 20:
+                    self.left_list = self.left_list[10:20]
 
                 return is_lefted
         #if self.pupils_located:

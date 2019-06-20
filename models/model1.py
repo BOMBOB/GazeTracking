@@ -11,7 +11,7 @@ def analyze(frame):
     # frame = zoom(frame, 1)
 
     gaze.refresh(frame)
-
+    frame = gaze.annotated_frame()
     # frame = gaze.annotated_frame()
     text = ""
     eye_position = 0
