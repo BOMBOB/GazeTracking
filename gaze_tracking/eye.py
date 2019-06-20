@@ -63,7 +63,7 @@ class Eye(object):
         #self.frame = cv2.resize(eye[min_y:max_y, min_x:max_x], (int(2*x), int(2*y)))
         self.frame = eye[min_y:max_y, min_x:max_x]
         #self.frame = cv2.resize(self.frame, (int(2*x), int(2*y)))
-        cv2.imshow('eye: ', self.frame)
+        #cv2.imshow('eye: ', self.frame)
         self.origin = (min_x, min_y)
 
         height, width = self.frame.shape[:2]

@@ -61,16 +61,18 @@ class GazeTracking(object):
             faces = self._face_detector(frame)
             if faces != None and len(faces) > 0:
                 # print('>>faces: ', faces)
-                face = faces[0]
+                self.face = faces[0]
+            else:
+                self.face = None
         elif self.choice == 1:
-            face = self._face_caffe._analyze(self.frame)
+            self.face = self._face_caffe._analyze(self.frame)
         elif self.choice == 2:
             cascades = face_cascade.detectMultiScale(frame, 1.3, 5)
             for (x,y,w,h) in cascades:
-                face = dlib.rectangle(x,y, x+w, y+h)
-        self.face = face
-        if face == None:
-
+                self.face = dlib.rectangle(x,y, x+w, y+h)
+        print('>>self.face: ',self.face)
+        if self.face == None:
+            self.is_found_face = False
             self.count += 1
             if self.count > 10:
                 self.calibration.reset()
@@ -79,7 +81,8 @@ class GazeTracking(object):
             else:
                 self.count = 0
                 return
-
+        self.is_found_face = True
+        face = self.face
 
         cv2.rectangle(frame, (face.left(), face.top()), (face.right(), face.bottom()), (0, 0, 255), 2)
 
@@ -142,8 +145,7 @@ class GazeTracking(object):
             return (pupil_left + pupil_right) / 2
 
     def not_found_face(self):
-        if self.face == None:
-            return True
+        return self.face == None
     def is_right(self):
         """Returns true if the user is looking to the right"""
         threshold = 0.40
@@ -186,7 +188,7 @@ class GazeTracking(object):
     def is_center(self):
         """Returns true if the user is looking to the center"""
         if self.pupils_located:
-            return self.is_right() is not True and self.is_left() is not True
+            return self.is_right() is not True and self.is_left() is not True and (self.face != None)
 
     def is_blinking(self):
         """Returns true if the user closes his eyes"""
@@ -226,7 +228,6 @@ class GazeTracking(object):
                 face = self.face
 
                 cv2.rectangle(frame, (face.left(), face.top()), (face.right(), face.bottom()), (0, 0, 255), 2)
-
 
 
         return frame
