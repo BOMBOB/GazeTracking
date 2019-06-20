@@ -31,6 +31,9 @@ while True:
         numleft += 1
     elif gaze.is_center():
         text = "Looking center"
+    elif gaze.not_found_face():
+        text = "Not found face"
+        #eye_position = -1
 
     cv2.putText(frame, text, (90, 60), cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
 

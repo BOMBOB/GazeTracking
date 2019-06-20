@@ -66,8 +66,9 @@ class GazeTracking(object):
             cascades = face_cascade.detectMultiScale(frame, 1.3, 5)
             for (x,y,w,h) in cascades:
                 face = dlib.rectangle(x,y, x+w, y+h)
-
+        self.face = face
         if face == None:
+
             self.count += 1
             if self.count > 10:
                 self.calibration.reset()
@@ -77,7 +78,7 @@ class GazeTracking(object):
                 self.count = 0
                 return
 
-        self.face = face
+
         cv2.rectangle(frame, (face.left(), face.top()), (face.right(), face.bottom()), (0, 0, 255), 2)
 
         try:
@@ -138,6 +139,9 @@ class GazeTracking(object):
             pupil_right = self.eye_right.pupil.y / (self.eye_right.center[1] * 2 - 10)
             return (pupil_left + pupil_right) / 2
 
+    def not_found_face(self):
+        if self.face == None:
+            return True
     def is_right(self):
         """Returns true if the user is looking to the right"""
         if self.pupils_located:

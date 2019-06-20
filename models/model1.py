@@ -8,7 +8,7 @@ def analyze(frame):
     # We get a new frame from the webcam
 
     # We send this frame to GazeTracking to analyze it
-    frame = zoom(frame, 1)
+    # frame = zoom(frame, 1)
 
     gaze.refresh(frame)
 
@@ -28,15 +28,18 @@ def analyze(frame):
     elif gaze.is_right():
         text = "Looking right"
         eye_position = 3
+    elif gaze.not_found_face():
+        text = "Not found face"
+        eye_position = -1
 
-    # cv2.putText(frame, text, (90, 60), cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
+    cv2.putText(frame, text, (90, 60), cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
 
-    # left_pupil = gaze.pupil_left_coords()
-    # right_pupil = gaze.pupil_right_coords()
-    # cv2.putText(frame, "Left pupil:  " + str(left_pupil), (90, 130), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
-    # cv2.putText(frame, "Right pupil: " + str(right_pupil), (90, 165), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
-    # cv2.imshow("Demo", frame)
-    # print(text)
+    left_pupil = gaze.pupil_left_coords()
+    right_pupil = gaze.pupil_right_coords()
+    cv2.putText(frame, "Left pupil:  " + str(left_pupil), (90, 130), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
+    cv2.putText(frame, "Right pupil: " + str(right_pupil), (90, 165), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
+    cv2.imshow("Demo", frame)
+    print(text)
 
     return eye_position
 
