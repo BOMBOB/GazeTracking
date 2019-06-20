@@ -145,15 +145,15 @@ class GazeTracking(object):
         threshold = 0.40
         horizontal = self.horizontal_ratio()
         if len(self.right_list) > 0:
-            new_threshold = np.min(self.right_list);
+            new_threshold = np.mean(self.right_list);
             if new_threshold < threshold:
                 threshold = new_threshold
         if self.pupils_located:
             is_righted = (horizontal <= (threshold+0.03))
             if is_righted:
                 self.right_list.append(horizontal)
-                if len(self.right_list) > 20:
-                    self.right_list = []
+                if len(self.right_list) > 50:
+                    self.right_list = self.right_list[26:50]
                 return is_righted
 
     def is_left(self):
@@ -161,15 +161,15 @@ class GazeTracking(object):
         threshold = 0.75
         horizontal = self.horizontal_ratio()
         if len(self.left_list) > 0:
-            new_threshold = np.min(self.left_list);
+            new_threshold = np.mean(self.left_list);
             if new_threshold < threshold:
                 threshold = new_threshold
         if self.pupils_located:
             is_lefted = (horizontal >= (threshold-0.03))
             if is_lefted:
                 self.left_list.append(horizontal)
-                if len(self.left_list) > 20:
-                    self.left_list = []
+                if len(self.left_list) > 50:
+                    self.left_list = self.left_list[26:50]
 
                 return is_lefted
         #if self.pupils_located:
