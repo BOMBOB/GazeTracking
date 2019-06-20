@@ -16,8 +16,10 @@ class GazeTracking(object):
     and pupils and allows to know if the eyes are open or closed
     """
 
-    def __init__(self, choice = 2):
+    def __init__(self, choice = 0):
         self.shapes = []
+        self.right_list = []
+        self.left_list = []
         self.count = 0
         self.numBlink = 0
         self.center_ratio = 0
@@ -144,18 +146,42 @@ class GazeTracking(object):
             return True
     def is_right(self):
         """Returns true if the user is looking to the right"""
+        threshold = 0.40
+        horizontal = self.horizontal_ratio()
+        if len(self.right_list) > 0:
+            new_threshold = np.mean(self.right_list);
+            if new_threshold < threshold:
+                threshold = new_threshold
         if self.pupils_located:
-            return self.horizontal_ratio() <= 0.35
-
+            is_righted = (horizontal <= (threshold+0.03))
+            if is_righted:
+                self.right_list.append(horizontal)
+                if len(self.right_list) > 50:
+                    self.right_list = self.right_list[26:50]
+                return is_righted
 
     def is_left(self):
         """Returns true if the user is looking to the left"""
+        threshold = 0.75
+        horizontal = self.horizontal_ratio()
+        if len(self.left_list) > 0:
+            new_threshold = np.mean(self.left_list);
+            if new_threshold < threshold:
+                threshold = new_threshold
         if self.pupils_located:
+            is_lefted = (horizontal >= (threshold-0.03))
+            if is_lefted:
+                self.left_list.append(horizontal)
+                if len(self.left_list) > 50:
+                    self.left_list = self.left_list[26:50]
+
+                return is_lefted
+        #if self.pupils_located:
             # if self.center_ratio != 0:
             #     ratio = 0.38 + ((1 - self.center_ratio) / 2)
             #     print('>>ratio-left: ', ratio)
             #     return self.horizontal_ratio() >= ratio
-            return self.horizontal_ratio() >= 0.75
+            #return self.horizontal_ratio() >= 0.75
 
     def is_center(self):
         """Returns true if the user is looking to the center"""
@@ -190,6 +216,12 @@ class GazeTracking(object):
             cv2.line(frame, (x_left, y_left - 5), (x_left, y_left + 5), color)
             cv2.line(frame, (x_right - 5, y_right), (x_right + 5, y_right), color)
             cv2.line(frame, (x_right, y_right - 5), (x_right, y_right + 5), color)
+            if len(self.left_list) > 0:
+                cv2.putText(frame, "Left List:  " + str(np.min(self.left_list)), (90, 190), cv2.FONT_HERSHEY_DUPLEX, 0.9,
+                        (147, 58, 31), 1)
+            if len(self.right_list) > 0:
+                cv2.putText(frame, "Right List: " + str(np.min(self.right_list)), (90, 225), cv2.FONT_HERSHEY_DUPLEX, 0.9,
+                        (147, 58, 31), 1)
             if self.face != None:
                 face = self.face
 
