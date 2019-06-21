@@ -60,7 +60,7 @@ class Pupil(object):
             self.y = int(moments['m01'] / moments['m00'])
         except (IndexError, ZeroDivisionError):
             pass
-        self.drawContours(contours, self.iris_frame)
+        # self.drawContours(contours, self.iris_frame)
 
     def drawContours(self, contours, eye_frame):
         if self.side != 0:
