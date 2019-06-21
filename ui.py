@@ -1,7 +1,7 @@
 import time
 import numpy as np
 import cv2.cv2 as cv2
-from models import model3 as analyze
+from models import model1 as analyze
 import simpleaudio as sa
 from messaging import Line
 
