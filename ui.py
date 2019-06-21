@@ -3,6 +3,7 @@ import numpy as np
 import cv2.cv2 as cv2
 from models import model1 as analyze
 import simpleaudio as sa
+from messaging import Line
 
 EYE_POSITION_LEFT = 1
 EYE_POSITION_CENTER = 2
@@ -21,6 +22,7 @@ WINDOW_WIDTH = 1440  # 1600
 WINDOW_HEIGHT = 900
 ALWAYS_ON = True  # don't sleep monitor
 SOUND = True  # turn sound on or off
+DRY_RUN = False  # do not send message
 
 ICON_WIDTH = 345
 ICON_HEIGHT = 295
@@ -44,8 +46,9 @@ FONT = cv2.FONT_HERSHEY_COMPLEX
 FONT_SCALE = 2
 FONT_THICKNESS = 3
 
+MAIN_MENU = 'L0'
 menus = {
-    'L0': {
+    MAIN_MENU: {
         'title': WINDOW_TITLE,
         1: {
             'src': './menu/L0L.png',
@@ -63,9 +66,9 @@ menus = {
     'L1A': {
         'title': 'TOILET',
         1: {
-            'src': './menu/L1AL.png',
-            'text': 'NO',
-            'action': 'no'
+            'src': './menu/L1AR.png',
+            'text': 'YES',
+            'action': 'yes'
         },
         2: {
             'src': './menu/L1AC.png',
@@ -73,17 +76,18 @@ menus = {
             'action': 'back'
         },
         3: {
-            'src': './menu/L1AR.png',
-            'text': 'YES',
-            'action': 'yes'
+            'src': './menu/L1AL.png',
+            'text': 'NO',
+            'action': 'no'
         }
     },
     'L1B': {
         'title': 'EMERGENCY',
+        'end_text': 'Help is on the way',
         1: {
-            'src': './menu/L1BL.png',
-            'text': 'NO',
-            'action': 'no'
+            'src': './menu/L1BR.png',
+            'text': 'HURRY',
+            'action': 'hurry'
         },
         2: {
             'src': './menu/L1BC.png',
@@ -91,9 +95,9 @@ menus = {
             'action': 'back'
         },
         3: {
-            'src': './menu/L1BR.png',
-            'text': 'HURRY',
-            'action': 'hurry'
+            'src': './menu/L1BL.png',
+            'text': 'NO',
+            'action': 'no'
         }
     }
 }
@@ -224,6 +228,11 @@ def get_title(menu):
     return menus[menu]['title']
 
 
+def get_end_text(menu):
+    if 'end_text' not in menus[menu]:
+        return None
+    return menus[menu]['end_text']
+
 # def get_menu_image(menu):
 #     return menus[menu]['src']
 
@@ -301,6 +310,20 @@ def put_countdown_text(img, eye_position, count):
                 lineType=cv2.LINE_AA)
 
 
+def put_end_text(img, text):
+    if text is None:
+        return None
+    text_size = cv2.getTextSize(text, FONT, fontScale=FONT_SCALE, thickness=FONT_THICKNESS)[0]
+    text_x = int((WINDOW_WIDTH / 2) - (text_size[0] / 2))
+    text_y = ICON_CENTER_Y1 + ICON_HEIGHT + text_size[1] + 90
+    cv2.putText(img, text, (text_x, text_y),
+                fontFace=FONT,
+                fontScale=FONT_SCALE,
+                color=(147, 58, 31),
+                thickness=FONT_THICKNESS,
+                lineType=cv2.LINE_AA)
+
+
 def main():
     # initial system config
     # pre-generate colors
@@ -311,7 +334,7 @@ def main():
         c = (int(bgr[0][0][0]), int(bgr[0][0][1]), int(bgr[0][0][2]))
         SELECT_COLOR[i] = c
 
-    current_menu = 'L0'
+    current_menu = MAIN_MENU
     count_dict = {
         EYE_POSITION_LEFT: 0,
         EYE_POSITION_CENTER: 0,
@@ -320,6 +343,9 @@ def main():
     }
     active = ALWAYS_ON
     previous_eye_position = None
+    messenger = Line('p4GTOS53TysxYxaJRe38v7qcV2WqZNMExbA5HGFpe12CoMmV2ugPPNTld/eNoPTiZwAiNrMdSqWaeWRCzj5z17Qzr6qtZVMJnup01T1U6aAn3SA4J+/jSVIolFpeO1TgODzNz4cZZNXXtHQTVuUpEwdB04t89/1O/w1cDnyilFU=',
+                     'C40345e548ee52a546052a2a56183cd44',
+                     DRY_RUN)
 
     # img = np.zeros((WINDOW_HEIGHT, WINDOW_WIDTH, 4), dtype=np.uint8)
     # img[:, :, :3] = BACKGROUND_COLOR
@@ -395,6 +421,7 @@ def main():
             # draw title
             title = get_title(current_menu)
             put_title(img, title)
+            put_end_text(img, get_end_text(current_menu))
 
             # draw left icon and text
             left_icon = cv2.imread(get_left_icon(current_menu), cv2.IMREAD_UNCHANGED)
@@ -427,22 +454,26 @@ def main():
                         # do action
                         action = get_action(current_menu, eye_position)
                         if action == 'emergency':
-                            print('LINE message sent: EMERGENCY')
-                        elif action == 'toilet':
-                            print('LINE message sent: TOILET')
+                            messenger.send('ROOM 7203: EMERGENCY')
+                        # elif action == 'toilet':
+                        #     print('LINE message sent: TOILET')
 
                         current_menu = next_menu
                     else:
                         # do action
                         action = get_action(current_menu, eye_position)
                         if action == 'back':
-                            current_menu = 'L0'
+                            current_menu = MAIN_MENU
                         elif action == 'hurry':
-                            print('LINE message sent: HURRY')
+                            messenger.send('ROOM 7203: HURRY')
+                            put_end_text(img, "Another message sent")
+                            current_menu = MAIN_MENU
                         elif action == 'no':
-                            print('LINE message sent: NO')
+                            messenger.send('ROOM 7203: NO')
+                            current_menu = MAIN_MENU
                         elif action == 'yes':
-                            print('LINE message sent: YES')
+                            messenger.send('ROOM 7203: YES')
+                            current_menu = MAIN_MENU
                         else:
                             break
                     # reset dictionary values
