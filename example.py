@@ -7,7 +7,7 @@ import cv2
 from gaze_tracking import GazeTracking
 
 gaze = GazeTracking()
-webcam = cv2.VideoCapture(0)
+webcam = cv2.VideoCapture(1)
 numleft = 0
 numright = 0
 while True:

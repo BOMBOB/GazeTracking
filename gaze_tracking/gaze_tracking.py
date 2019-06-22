@@ -16,7 +16,7 @@ class GazeTracking(object):
     and pupils and allows to know if the eyes are open or closed
     """
 
-    def __init__(self, choice = 0):
+    def __init__(self, choice = 2):
         self.shapes = []
         self.right_list = []
         self.left_list = []
@@ -57,7 +57,7 @@ class GazeTracking(object):
         face = None
 
         frame = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
-        if self.choice == 0:
+        if self.choice == 2:
             faces = self._face_detector(frame)
             if faces != None and len(faces) > 0:
                 # print('>>faces: ', faces)
@@ -66,7 +66,7 @@ class GazeTracking(object):
                 self.face = None
         elif self.choice == 1:
             self.face = self._face_caffe._analyze(self.frame)
-        elif self.choice == 2:
+        elif self.choice == 0:
             cascades = face_cascade.detectMultiScale(frame, 1.3, 5)
             for (x,y,w,h) in cascades:
                 self.face = dlib.rectangle(x,y, x+w, y+h)

@@ -29,7 +29,6 @@ class Calibration(object):
         """
         if side == 0:
             # return int(sum(self.thresholds_left) / len(self.thresholds_left))
-
             return int(np.median(self.thresholds_left))
         elif side == 1:
             #return int(sum(self.thresholds_right) / len(self.thresholds_right))
