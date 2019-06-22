@@ -8,11 +8,13 @@ class Pupil(object):
     the position of the pupil
     """
 
-    def __init__(self, eye_frame, threshold):
+    def __init__(self, eye_frame, threshold, side=0):
         self.iris_frame = None
         self.threshold = threshold
         self.x = None
         self.y = None
+        self.contours = [];
+        self.side = side
 
         self.detect_iris(eye_frame)
 
@@ -27,10 +29,16 @@ class Pupil(object):
         Returns:
             A frame with a single element representing the iris
         """
+        #kernelSharpen = np.array([[0, -1, 0],[-1, 5, -1], [0, -1, 0]])
         kernel = np.ones((3, 3), np.uint8)
         new_frame = cv2.bilateralFilter(eye_frame, 10, 15, 15)
+        #new_frame = cv2.filter2D(new_frame, -1, kernelSharpen)
+
         new_frame = cv2.erode(new_frame, kernel, iterations=3)
+
+
         new_frame = cv2.threshold(new_frame, threshold, 255, cv2.THRESH_BINARY)[1]
+        # print('>>threshold: ', threshold)
 
         return new_frame
 
@@ -52,3 +60,26 @@ class Pupil(object):
             self.y = int(moments['m01'] / moments['m00'])
         except (IndexError, ZeroDivisionError):
             pass
+        # self.drawContours(contours, self.iris_frame)
+
+    def drawContours(self, contours, eye_frame):
+        if self.side != 0:
+            return;
+
+        # colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255)]
+        # ss = ['(blue)', '(green)', '(red)']
+        # print('\n==== contours ====')
+        # for i in range(len(contours)):
+        #     color = colors[i % 3]
+        #     s = ss[i % 3]
+        #     print('\n' + s + 'Contour#' + str(i) + ' : ' + str(len(contours[i])) + ' points.')
+        #
+        #     # Print and draw each point storing in the current contour
+        #     for j in range(len(contours[i])):
+        #         print('  ' + str(j) + '=>', contours[i][j])
+        #         center_x, center_y = contours[i][j][0][0], contours[i][j][0][1]
+        #         cv2.circle(eye_frame, (center_x, center_y), 6, color, thickness=-1)
+
+        cv2.imshow('>>eye contour: ', eye_frame)
+
+
