@@ -42,7 +42,9 @@ class Calibration(object):
         Argument:
             frame (numpy.ndarray): Binarized iris frame
         """
+
         frame = frame[5:-5, 5:-5]
+
         height, width = frame.shape[:2]
         nb_pixels = height * width
         nb_blacks = nb_pixels - cv2.countNonZero(frame)

@@ -1,6 +1,6 @@
 import cv2.cv2 as cv2
 from gaze_tracking import GazeTracking
-gaze = GazeTracking(2)
+gaze = GazeTracking(0)
 
 
 def analyze(frame):

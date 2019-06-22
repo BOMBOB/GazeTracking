@@ -7,7 +7,7 @@ import cv2
 from gaze_tracking import GazeTracking
 
 gaze = GazeTracking()
-webcam = cv2.VideoCapture(1)
+webcam = cv2.VideoCapture(0)
 numleft = 0
 numright = 0
 while True:
@@ -33,7 +33,7 @@ while True:
         text = "Looking center"
     elif gaze.not_found_face():
         text = "Not found face"
-        #eye_position = -1
+        eye_position = -1
 
     cv2.putText(frame, text, (90, 60), cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
 

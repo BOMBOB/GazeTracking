@@ -1,6 +1,6 @@
 import cv2.cv2 as cv2
 from gaze_tracking import GazeTracking
-gaze = GazeTracking(1)
+gaze = GazeTracking(2)
 
 
 def analyze(frame):
@@ -13,15 +13,17 @@ def analyze(frame):
     if gaze.is_blinking():
         text = "Blinking"
         eye_position = 0
+    elif gaze.is_right():
+        text = "Looking right"
+        eye_position = 3
     elif gaze.is_left():
         text = "Looking left"
         eye_position = 1
     elif gaze.is_center():
         text = "Looking center"
         eye_position = 2
-    elif gaze.is_right():
-        text = "Looking right"
-        eye_position = 3
+
+
     elif gaze.not_found_face():
         text = "Not found face"
         eye_position = -1

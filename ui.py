@@ -3,10 +3,10 @@ import numpy as np
 import cv2.cv2 as cv2
 # from models import haar as analyze
 # from models import dnn as analyze
-# from models import hog as analyze
+from models import hog as analyze
 # from models import randommodel as analyze
 # from models import predefinedmodel as analyze
-from models import model1 as analyze
+#from models import model1 as analyze
 import simpleaudio as sa
 from messaging import Line
 

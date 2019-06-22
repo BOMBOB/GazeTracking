@@ -128,6 +128,7 @@ class GazeTracking(object):
         the center is 0.5 and the extreme left is 1.0
         """
         if self.pupils_located:
+            # self.center = (width / 2, height / 2) // eye_left.center[0]
             pupil_left = self.eye_left.pupil.x / (self.eye_left.center[0] * 2 - 10)
             pupil_right = self.eye_right.pupil.x / (self.eye_right.center[0] * 2 - 10)
             ratio = (pupil_left + pupil_right) / 2
@@ -148,16 +149,17 @@ class GazeTracking(object):
         return self.face == None
     def is_right(self):
         """Returns true if the user is looking to the right"""
-        threshold = 0.40
+        threshold = 0.38
         horizontal = self.horizontal_ratio()
         if len(self.right_list) > 0:
             new_threshold = np.mean(self.right_list);
             if new_threshold < threshold:
                 threshold = new_threshold
         if self.pupils_located:
-            is_righted = (horizontal <= (threshold+0.1))
+            is_righted = (horizontal <= (threshold+0.05))
             if is_righted:
-                self.right_list.append(horizontal)
+                if horizontal > 0.28:
+                    self.right_list.append(horizontal)
                 if len(self.right_list) > 20:
                     self.right_list = self.right_list[10:20]
                 return is_righted
@@ -168,12 +170,13 @@ class GazeTracking(object):
         horizontal = self.horizontal_ratio()
         if len(self.left_list) > 0:
             new_threshold = np.mean(self.left_list);
-            if new_threshold < threshold:
+            if new_threshold > threshold:
                 threshold = new_threshold
         if self.pupils_located:
-            is_lefted = (horizontal >= (threshold-0.1))
+            is_lefted = (horizontal >= (threshold-0.05))
             if is_lefted:
-                self.left_list.append(horizontal)
+                if horizontal < 0.8:
+                    self.left_list.append(horizontal)
                 if len(self.left_list) > 20:
                     self.left_list = self.left_list[10:20]
 
