@@ -1,12 +1,12 @@
 import time
 import numpy as np
 import cv2.cv2 as cv2
-from models import model1 as analyze
 # from models import haar as analyze
 # from models import dnn as analyze
 # from models import hog as analyze
 # from models import randommodel as analyze
 # from models import predefinedmodel as analyze
+from models import model1 as analyze
 import simpleaudio as sa
 from messaging import Line
 
@@ -314,8 +314,12 @@ def get_action(menu, eye_position):
 def put_countdown_text(img, eye_position, count):
     countdown = str(round((SELECTED_CYCLE_THRESHOLD * CYCLE_TIME) - (count * CYCLE_TIME), 1))
     text_size = cv2.getTextSize(countdown, FONT, fontScale=FONT_SCALE, thickness=FONT_THICKNESS)[0]
-    text_x = 20
-    text_y = text_size[1] + 20
+    text_x = 20  # left
+    if eye_position == EYE_POSITION_RIGHT:
+        text_x = WINDOW_WIDTH - text_size[0] - 20
+    elif eye_position == EYE_POSITION_CENTER:
+        text_x = int((WINDOW_WIDTH / 2) - (text_size[0] / 2))
+    text_y = text_size[1] + 100
     cv2.putText(img, countdown, (text_x, text_y),
                 fontFace=FONT,
                 fontScale=FONT_SCALE,
