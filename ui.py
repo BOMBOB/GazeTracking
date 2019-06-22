@@ -1,7 +1,9 @@
 import time
 import numpy as np
 import cv2.cv2 as cv2
-from models import model1 as analyze
+# from models import model1 as analyze
+# from models import randommodel as analyze
+from models import predefinedmodel as analyze
 import simpleaudio as sa
 from messaging import Line
 
@@ -22,7 +24,7 @@ WINDOW_WIDTH = 1440  # 1600
 WINDOW_HEIGHT = 900
 ALWAYS_ON = True  # don't sleep monitor
 SOUND = True  # turn sound on or off
-DRY_RUN = False  # do not send message
+DRY_RUN = True  # do not send message
 
 ICON_WIDTH = 345
 ICON_HEIGHT = 295
@@ -60,7 +62,8 @@ menus = {
             'src': './menu/L0R.png',
             'text': 'EMERGENCY',
             'action': 'emergency',
-            'destination': 'L1B'
+            'destination': 'L1B',
+            'end_text': 'Help is on the way'
         }
     },
     'L1A': {
@@ -68,7 +71,8 @@ menus = {
         1: {
             'src': './menu/L1AR.png',
             'text': 'YES',
-            'action': 'yes'
+            'action': 'yes',
+            'end_text': 'Message sent!'
         },
         2: {
             'src': './menu/L1AC.png',
@@ -83,11 +87,11 @@ menus = {
     },
     'L1B': {
         'title': 'EMERGENCY',
-        'end_text': 'Help is on the way',
         1: {
             'src': './menu/L1BR.png',
             'text': 'HURRY',
-            'action': 'hurry'
+            'action': 'hurry',
+            'end_text': 'OK !!'
         },
         2: {
             'src': './menu/L1BC.png',
@@ -101,6 +105,7 @@ menus = {
         }
     }
 }
+MSG_PREFIX = 'ROOM 7203: '
 
 
 def run_model(frame):
@@ -228,10 +233,16 @@ def get_title(menu):
     return menus[menu]['title']
 
 
-def get_end_text(menu):
-    if 'end_text' not in menus[menu]:
+# def get_end_text(menu):
+#     if 'end_text' not in menus[menu]:
+#         return None
+#     return menus[menu]['end_text']
+
+
+def get_end_text(menu, eye_position):
+    if 'end_text' not in menus[menu][eye_position]:
         return None
-    return menus[menu]['end_text']
+    return menus[menu][eye_position]['end_text']
 
 # def get_menu_image(menu):
 #     return menus[menu]['src']
@@ -343,6 +354,7 @@ def main():
     }
     active = ALWAYS_ON
     previous_eye_position = None
+    end_text = None
     messenger = Line('p4GTOS53TysxYxaJRe38v7qcV2WqZNMExbA5HGFpe12CoMmV2ugPPNTld/eNoPTiZwAiNrMdSqWaeWRCzj5z17Qzr6qtZVMJnup01T1U6aAn3SA4J+/jSVIolFpeO1TgODzNz4cZZNXXtHQTVuUpEwdB04t89/1O/w1cDnyilFU=',
                      'C40345e548ee52a546052a2a56183cd44',
                      DRY_RUN)
@@ -421,7 +433,8 @@ def main():
             # draw title
             title = get_title(current_menu)
             put_title(img, title)
-            put_end_text(img, get_end_text(current_menu))
+            # put_end_text(img, get_end_text(current_menu))
+            put_end_text(img, end_text)
 
             # draw left icon and text
             left_icon = cv2.imread(get_left_icon(current_menu), cv2.IMREAD_UNCHANGED)
@@ -450,11 +463,13 @@ def main():
                     has_button_on_position(current_menu, eye_position):
                 if count_dict[eye_position] >= SELECTED_CYCLE_THRESHOLD:
                     next_menu = get_next_menu(current_menu, eye_position)
+                    # get end text
+                    end_text = get_end_text(current_menu, eye_position)
                     if next_menu is not None:
                         # do action
                         action = get_action(current_menu, eye_position)
                         if action == 'emergency':
-                            messenger.send('ROOM 7203: EMERGENCY')
+                            messenger.send(f'{MSG_PREFIX}EMERGENCY')
                         # elif action == 'toilet':
                         #     print('LINE message sent: TOILET')
 
@@ -465,17 +480,19 @@ def main():
                         if action == 'back':
                             current_menu = MAIN_MENU
                         elif action == 'hurry':
-                            messenger.send('ROOM 7203: HURRY')
+                            messenger.send(f'{MSG_PREFIX}HURRY')
                             put_end_text(img, "Another message sent")
                             current_menu = MAIN_MENU
                         elif action == 'no':
-                            messenger.send('ROOM 7203: NO')
+                            messenger.send(f'{MSG_PREFIX}NO')
                             current_menu = MAIN_MENU
                         elif action == 'yes':
-                            messenger.send('ROOM 7203: YES')
+                            messenger.send(f'{MSG_PREFIX}YES')
                             current_menu = MAIN_MENU
                         else:
                             break
+
+
                     # reset dictionary values
                     count_dict = count_dict.fromkeys(count_dict, 0)
                 else:
