@@ -27,7 +27,7 @@ WINDOW_WIDTH = 1440  # 1600
 WINDOW_HEIGHT = 900
 ALWAYS_ON = True  # don't sleep monitor
 SOUND = True  # turn sound on or off
-DRY_RUN = True  # do not send message
+DRY_RUN = False  # do not send message
 
 ICON_WIDTH = 345
 ICON_HEIGHT = 295
